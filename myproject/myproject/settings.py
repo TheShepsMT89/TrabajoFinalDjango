@@ -143,3 +143,10 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'diego.cardenas.g@tecsup.edu.pe'
 EMAIL_HOST_PASSWORD = 'yutn aeld neif wcvd' 
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React development server
+]
+CORS_ALLOW_ALL_ORIGINS = True
+APPEND_SLASH = False
