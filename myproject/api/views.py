@@ -1,7 +1,9 @@
 from datetime import timedelta
 from django.shortcuts import render
 from django.core.mail import send_mail
-
+from .models import Cliente, Proveedor
+from .serializers import ClienteSerializer, ProveedorSerializer
+from .serializers import UsuarioSerializer
 # Create your views here.
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
@@ -178,3 +180,29 @@ class FacturaProveedorViewSet(ModelViewSet):
             ]
         }
         return Response(data, status=status.HTTP_200_OK)
+
+
+
+class ClienteViewSet(ModelViewSet):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+    permission_classes = [IsAuthenticated]  # Ajusta las clases de permisos según tus necesidades
+
+class ProveedorViewSet(ModelViewSet):
+    queryset = Proveedor.objects.all()
+    serializer_class = ProveedorSerializer
+    permission_classes = [IsAuthenticated]
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import Usuario
+from .serializers import UsuarioSerializer
+
+class UsuarioLogueadoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        usuario = request.user
+        serializer = UsuarioSerializer(usuario)
+        return Response(serializer.data)
