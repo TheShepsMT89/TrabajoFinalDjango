@@ -5,6 +5,10 @@ from .models import Cliente, Proveedor
 from .serializers import ClienteSerializer, ProveedorSerializer
 from .serializers import UsuarioSerializer
 # Create your views here.
+
+from .models import Factura_Cliente,Factura_Proveedor
+
+
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,7 +23,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import Factura_cliente, Factura_proveedor
+
 from .permissions import EsContador
 
 from rest_framework.decorators import action
@@ -75,7 +79,7 @@ def enviar_correo(destinatario, asunto, mensaje):
     )
 
 class FacturaClienteViewSet(ModelViewSet):
-    queryset = Factura_cliente.objects.all()
+    queryset = Factura_Cliente.objects.all()
     serializer_class = FacturaClienteSerializer
     permission_classes = [IsAuthenticated, EsContador]
 
@@ -129,7 +133,7 @@ class FacturaClienteViewSet(ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
 class FacturaProveedorViewSet(ModelViewSet):
-    queryset = Factura_proveedor.objects.all()
+    queryset = Factura_Proveedor.objects.all()
     serializer_class = FacturaProveedorSerializer
     permission_classes = [IsAuthenticated, EsContador]
 
@@ -206,3 +210,57 @@ class UsuarioLogueadoView(APIView):
         usuario = request.user
         serializer = UsuarioSerializer(usuario)
         return Response(serializer.data)
+    
+
+
+
+from rest_framework import viewsets
+from .models import Cliente, Proveedor, AuditLog
+from .serializers import FacturaClienteSerializer, FacturaProveedorSerializer, ClienteSerializer, ProveedorSerializer, AuditLogSerializer
+from rest_framework.permissions import IsAuthenticated
+
+class FacturaClienteViewSet(viewsets.ModelViewSet):
+    queryset = Factura_Cliente.objects.all()
+    serializer_class = FacturaClienteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        factura = serializer.save()
+        AuditLog.objects.create(user=self.request.user, action="FacturaCliente creada", details=f"FacturaCliente ID: {factura.id}")
+
+    def perform_update(self, serializer):
+        factura = serializer.save()
+        AuditLog.objects.create(user=self.request.user, action="FacturaCliente actualizada", details=f"FacturaCliente ID: {factura.id}")
+
+    def perform_destroy(self, instance):
+        AuditLog.objects.create(user=self.request.user, action="FacturaCliente eliminada", details=f"FacturaCliente ID: {instance.id}")
+        instance.delete()
+
+class FacturaProveedorViewSet(viewsets.ModelViewSet):
+    queryset = Factura_Proveedor.objects.all()
+    serializer_class = FacturaProveedorSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        factura = serializer.save()
+        AuditLog.objects.create(user=self.request.user, action="FacturaProveedor creada", details=f"FacturaProveedor ID: {factura.id}")
+
+    def perform_update(self, serializer):
+        factura = serializer.save()
+        AuditLog.objects.create(user=self.request.user, action="FacturaProveedor actualizada", details=f"FacturaProveedor ID: {factura.id}")
+
+    def perform_destroy(self, instance):
+        AuditLog.objects.create(user=self.request.user, action="FacturaProveedor eliminada", details=f"FacturaProveedor ID: {instance.id}")
+        instance.delete()
+
+# Define otros ViewSets y vistas aquí
+
+from rest_framework import generics
+from .models import AuditLog
+from .serializers import AuditLogSerializer
+from rest_framework.permissions import IsAuthenticated
+
+class AuditLogListView(generics.ListAPIView):
+    queryset = AuditLog.objects.all()
+    serializer_class = AuditLogSerializer
+    permission_classes = [IsAuthenticated]

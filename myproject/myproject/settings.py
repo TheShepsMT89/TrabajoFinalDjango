@@ -157,3 +157,6 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=200),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }   
+
+
+AUTH_USER_MODEL = 'api.Usuario'  # Asegúrate de que está configurado correctamente
