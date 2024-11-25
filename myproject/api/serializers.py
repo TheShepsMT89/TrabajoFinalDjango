@@ -32,7 +32,7 @@ class FacturaClienteSerializer(serializers.ModelSerializer):
         model = Factura_Cliente  # Asegúrate de que esto sea Factura_Cliente (con mayúsculas)
         fields = [
             'id', 'numero_factura', 'estado', 'fecha_vencimiento', 'monto', 'descripcion', 
-            'fecha', 'cliente', 'usuario', 'cliente_nombre', 'usuario_nombre'
+            'fecha', 'cliente', 'usuario', 'cliente_nombre', 'usuario_nombre', 'accion'
         ]
 
 class FacturaProveedorSerializer(serializers.ModelSerializer):
@@ -44,7 +44,7 @@ class FacturaProveedorSerializer(serializers.ModelSerializer):
         model = Factura_Proveedor  # Asegúrate de que esto sea Factura_Proveedor (con mayúsculas)
         fields = [
             'id', 'numero_factura', 'estado', 'fecha_vencimiento', 'monto', 'descripcion', 
-            'fecha', 'proveedor', 'usuario', 'proveedor_nombre', 'usuario_nombre'
+            'fecha', 'proveedor', 'usuario', 'proveedor_nombre', 'usuario_nombre', 'accion'
         ]
 
 class ClienteSerializer(serializers.ModelSerializer):
@@ -65,4 +65,19 @@ class UsuarioSerializer(serializers.ModelSerializer):
 class AuditLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuditLog
+        fields = '__all__'
+
+from .models import ReporteFactura  # Asegúrate de importar el modelo ReporteFactura
+
+class ReporteFacturaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReporteFactura
+        fields = '__all__'
+
+
+from .models import ReporteFactura  # Asegúrate de importar el modelo ReporteFactura
+
+class ReporteFacturaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReporteFactura
         fields = '__all__'

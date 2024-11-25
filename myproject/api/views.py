@@ -264,3 +264,12 @@ class AuditLogListView(generics.ListAPIView):
     queryset = AuditLog.objects.all()
     serializer_class = AuditLogSerializer
     permission_classes = [IsAuthenticated]
+
+
+from .models import ReporteFactura  # Asegúrate de importar el modelo ReporteFactura
+from .serializers import ReporteFacturaSerializer  # Asegúrate de importar el serializador ReporteFacturaSerializer
+
+class ReporteFacturaViewSet(viewsets.ModelViewSet):
+    queryset = ReporteFactura.objects.all()
+    serializer_class = ReporteFacturaSerializer
+    permission_classes = [IsAuthenticated]
