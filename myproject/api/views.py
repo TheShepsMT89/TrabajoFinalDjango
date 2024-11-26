@@ -186,6 +186,45 @@ class FacturaProveedorViewSet(ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
 
+class ClienteAdminViewSet(ModelViewSet):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+    permission_classes = [IsAuthenticated]
+
+class ProveedorAdminViewSet(ModelViewSet):
+    queryset = Proveedor.objects.all()
+    serializer_class = ProveedorSerializer
+    permission_classes = [IsAuthenticated]
+
+class FacturaClienteAdminViewSet(ModelViewSet):
+    queryset = Factura_Cliente.objects.all()
+    serializer_class = FacturaClienteSerializer
+    permission_classes = [IsAuthenticated]
+
+class FacturaProveedorAdminViewSet(ModelViewSet):
+    queryset = Factura_Proveedor.objects.all()
+    serializer_class = FacturaProveedorSerializer
+    permission_classes = [IsAuthenticated]
+
+
+
+class UsuarioAdminViewSet(ModelViewSet):
+    queryset = Usuario.objects.all()
+    serializer_class = UsuarioSerializer
+    permission_classes = [IsAuthenticated, EsAdmin]
+
+    # Método para cambiar el rol desde React
+    @action(detail=True, methods=['patch'])
+    def cambiar_rol(self, request, pk=None):
+        usuario = self.get_object()
+        nuevo_rol = request.data.get('rol')
+        if nuevo_rol in ['EsAdmin', 'EsContador', 'UsuarioRegular']:  # Valida los roles disponibles
+            usuario.rol = nuevo_rol
+            usuario.save()
+            return Response({"mensaje": f"Rol cambiado a {nuevo_rol}"})
+        return Response({"error": "Rol inválido"}, status=400)
+
+
 
 class ClienteViewSet(ModelViewSet):
     queryset = Cliente.objects.all()
@@ -333,6 +372,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Factura_Cliente, Factura_Proveedor
 from django.db.models import Sum
 from datetime import datetime
+from django.db.models.functions import TruncDay
+
 
 class ProyeccionFlujoCajaView(APIView):
     permission_classes = [IsAuthenticated]
@@ -340,22 +381,35 @@ class ProyeccionFlujoCajaView(APIView):
     def get(self, request, *args, **kwargs):
         fecha_inicio = request.query_params.get('fecha_inicio')
         fecha_fin = request.query_params.get('fecha_fin')
+
         if not fecha_inicio or not fecha_fin:
             return Response({'error': 'Debe proporcionar fecha_inicio y fecha_fin'}, status=400)
         
         fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
         fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
 
-        ingresos = Factura_Cliente.objects.filter(fecha__range=(fecha_inicio, fecha_fin)).aggregate(total=Sum('monto'))['total']
-        egresos = Factura_Proveedor.objects.filter(fecha__range=(fecha_inicio, fecha_fin)).aggregate(total=Sum('monto'))['total']
+        ingresos = Factura_Cliente.objects.filter(fecha__range=(fecha_inicio, fecha_fin)) \
+            .annotate(dia=TruncDay('fecha')) \
+            .values('dia') \
+            .annotate(total=Sum('monto')) \
+            .order_by('dia')
 
-        flujo_caja = (ingresos or 0) - (egresos or 0)
+        egresos = Factura_Proveedor.objects.filter(fecha__range=(fecha_inicio, fecha_fin)) \
+            .annotate(dia=TruncDay('fecha')) \
+            .values('dia') \
+            .annotate(total=Sum('monto')) \
+            .order_by('dia')
 
-        return Response({
-            'ingresos': ingresos,
-            'egresos': egresos,
-            'flujo_caja': flujo_caja
-        })
+        flujo_caja = []
+        for ingreso, egreso in zip(ingresos, egresos):
+            flujo_caja.append({
+                'fecha': ingreso['dia'],
+                'ingresos': ingreso['total'] or 0,
+                'egresos': egreso['total'] or 0,
+                'flujo_caja': (ingreso['total'] or 0) - (egreso['total'] or 0)
+            })
+
+        return Response(flujo_caja) 
     
 
 

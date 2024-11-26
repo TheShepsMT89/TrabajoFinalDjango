@@ -1,7 +1,15 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FacturaClienteViewSet, FacturaProveedorViewSet, ClienteViewSet, ProveedorViewSet, LoginView, LogoutView, VistaSoloAdmin, UsuarioLogueadoView, AuditLogListView, ReporteFacturaViewSet, SimpleMessageViewSet, TotalPorCobrarView, TotalPorPagarView, FacturasVencidasView, ProyeccionFlujoCajaView, NotificacionesFacturasView,TotalFacturasPorUsuarioView,TotalFacturasPorEstadoView, TotalMontoPorEstadoView, FacturasPorFechaView, TotalClientesProveedoresView
-
+from .views import (
+    FacturaClienteViewSet, FacturaProveedorViewSet, ClienteViewSet, ProveedorViewSet,
+    LoginView, LogoutView, VistaSoloAdmin, UsuarioLogueadoView, AuditLogListView,
+    ReporteFacturaViewSet, SimpleMessageViewSet, TotalPorCobrarView, TotalPorPagarView,
+    FacturasVencidasView, ProyeccionFlujoCajaView, NotificacionesFacturasView,
+    TotalFacturasPorUsuarioView, TotalFacturasPorEstadoView, TotalMontoPorEstadoView,
+    FacturasPorFechaView, TotalClientesProveedoresView, UsuarioAdminViewSet, 
+    ClienteAdminViewSet, ProveedorAdminViewSet, FacturaClienteAdminViewSet, 
+    FacturaProveedorAdminViewSet
+)
 # Crear el router
 router = DefaultRouter()
 router.register('facturas-clientes', FacturaClienteViewSet, basename='facturas-clientes')
@@ -10,6 +18,11 @@ router.register('clientes', ClienteViewSet, basename='clientes')
 router.register('proveedores', ProveedorViewSet, basename='proveedores')
 router.register('reportes-facturas', ReporteFacturaViewSet, basename='reportes-facturas')
 router.register('simple-messages', SimpleMessageViewSet, basename='simple-messages')
+router.register(r'admin/usuarios', UsuarioAdminViewSet, basename='admin-usuarios')
+router.register(r'admin/clientes', ClienteAdminViewSet, basename='admin-clientes')
+router.register(r'admin/proveedores', ProveedorAdminViewSet, basename='admin-proveedores')
+router.register(r'admin/facturas-clientes', FacturaClienteAdminViewSet, basename='admin-facturas-clientes')
+router.register(r'admin/facturas-proveedores', FacturaProveedorAdminViewSet, basename='admin-facturas-proveedores')
 
 # Definir las rutas
 urlpatterns = [
@@ -25,9 +38,12 @@ urlpatterns = [
     path('proyeccion-flujo-caja/', ProyeccionFlujoCajaView.as_view(), name='proyeccion_flujo_caja'),  # Registrar la vista de proyección de flujo de caja
     
     path('notificaciones-facturas/', NotificacionesFacturasView.as_view(), name='notificaciones_facturas'),
-     path('total-facturas-por-usuario/', TotalFacturasPorUsuarioView.as_view(), name='total_facturas_por_usuario'),
-     path('total-facturas-por-estado/', TotalFacturasPorEstadoView.as_view(), name='total_facturas_por_estado'),
+    path('total-facturas-por-usuario/', TotalFacturasPorUsuarioView.as_view(), name='total_facturas_por_usuario'),
+    path('total-facturas-por-estado/', TotalFacturasPorEstadoView.as_view(), name='total_facturas_por_estado'),
     path('total-monto-por-estado/', TotalMontoPorEstadoView.as_view(), name='total_monto_por_estado'),
     path('facturas-por-fecha/', FacturasPorFechaView.as_view(), name='facturas_por_fecha'),
     path('total-clientes-proveedores/', TotalClientesProveedoresView.as_view(), name='total_clientes_proveedores'),
+
+
+
 ]
