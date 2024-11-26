@@ -206,11 +206,18 @@ from .serializers import UsuarioSerializer
 class UsuarioLogueadoView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         usuario = request.user
         serializer = UsuarioSerializer(usuario)
         return Response(serializer.data)
-    
+
+    def put(self, request, *args, **kwargs):
+        usuario = request.user
+        serializer = UsuarioSerializer(usuario, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
 
 
 
@@ -349,3 +356,210 @@ class ProyeccionFlujoCajaView(APIView):
             'egresos': egresos,
             'flujo_caja': flujo_caja
         })
+    
+
+
+
+class ClienteViewSet(viewsets.ModelViewSet):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(creado_por=self.request.user)
+
+class ProveedorViewSet(viewsets.ModelViewSet):
+    queryset = Proveedor.objects.all()
+    serializer_class = ProveedorSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(creado_por=self.request.user)
+
+
+
+
+from rest_framework import viewsets, generics
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Sum, Q, Count
+from django.utils import timezone
+from datetime import datetime, timedelta
+from .models import Factura_Cliente, Factura_Proveedor, Cliente, Proveedor, Usuario
+from .serializers import FacturaClienteSerializer, FacturaProveedorSerializer, ClienteSerializer, ProveedorSerializer
+
+class ClienteViewSet(viewsets.ModelViewSet):
+    queryset = Cliente.objects.all()
+    serializer_class = ClienteSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(creado_por=self.request.user)
+
+class ProveedorViewSet(viewsets.ModelViewSet):
+    queryset = Proveedor.objects.all()
+    serializer_class = ProveedorSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(creado_por=self.request.user)
+
+class FacturaClienteViewSet(viewsets.ModelViewSet):
+    queryset = Factura_Cliente.objects.all()
+    serializer_class = FacturaClienteSerializer
+
+class FacturaProveedorViewSet(viewsets.ModelViewSet):
+    queryset = Factura_Proveedor.objects.all()
+    serializer_class = FacturaProveedorSerializer
+
+class TotalPorCobrarView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        total_por_cobrar = Factura_Cliente.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total']
+        return Response({'total_por_cobrar': total_por_cobrar})
+
+class TotalPorPagarView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        total_por_pagar = Factura_Proveedor.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total']
+        return Response({'total_por_pagar': total_por_pagar})
+
+class FacturasVencidasView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        hoy = timezone.now().date()
+        facturas_vencidas = Factura_Cliente.objects.filter(fecha_vencimiento__lt=hoy, estado='pendiente').count()
+        return Response({'facturas_vencidas': facturas_vencidas})
+
+class ProyeccionFlujoCajaView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        fecha_inicio = request.query_params.get('fecha_inicio')
+        fecha_fin = request.query_params.get('fecha_fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Debe proporcionar fecha_inicio y fecha_fin'}, status=400)
+        
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+
+        ingresos = Factura_Cliente.objects.filter(fecha__range=(fecha_inicio, fecha_fin)).aggregate(total=Sum('monto'))['total']
+        egresos = Factura_Proveedor.objects.filter(fecha__range=(fecha_inicio, fecha_fin)).aggregate(total=Sum('monto'))['total']
+
+        flujo_caja = (ingresos or 0) - (egresos or 0)
+
+        return Response({
+            'ingresos': ingresos,
+            'egresos': egresos,
+            'flujo_caja': flujo_caja
+        })
+
+from django.db.models import Count
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import Usuario, Factura_Cliente, Factura_Proveedor
+from .serializers import UsuarioFacturaSerializer
+
+class TotalFacturasPorUsuarioView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        rol = request.query_params.get('rol', 'contador')
+        usuarios = Usuario.objects.filter(rol=rol).annotate(
+            total_facturas_cliente=Count('facturas_cliente', distinct=True),
+            total_facturas_proveedor=Count('facturas_proveedor', distinct=True)
+        )
+        serializer = UsuarioFacturaSerializer(usuarios, many=True)
+        return Response(serializer.data)
+class NotificacionesFacturasView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        hoy = timezone.now().date()
+        proximas_vencer = Factura_Cliente.objects.filter(fecha_vencimiento__lte=hoy + timedelta(days=3), estado='pendiente').count()
+        vencidas = Factura_Cliente.objects.filter(fecha_vencimiento__lt=hoy, estado='pendiente').count()
+        return Response({
+            'proximas_vencer': proximas_vencer,
+            'vencidas': vencidas
+        })
+    
+
+
+class TotalFacturasPorEstadoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        total_facturas_cliente = Factura_Cliente.objects.values('estado').annotate(total=Count('estado'))
+        total_facturas_proveedor = Factura_Proveedor.objects.values('estado').annotate(total=Count('estado'))
+        return Response({
+            'total_facturas_cliente': total_facturas_cliente,
+            'total_facturas_proveedor': total_facturas_proveedor
+        })
+    
+
+
+class TotalMontoPorEstadoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        total_monto_cliente = Factura_Cliente.objects.values('estado').annotate(total=Sum('monto'))
+        total_monto_proveedor = Factura_Proveedor.objects.values('estado').annotate(total=Sum('monto'))
+        return Response({
+            'total_monto_cliente': total_monto_cliente,
+            'total_monto_proveedor': total_monto_proveedor
+        })
+    
+
+class FacturasPorFechaView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        fecha_inicio = request.query_params.get('fecha_inicio')
+        fecha_fin = request.query_params.get('fecha_fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Debe proporcionar fecha_inicio y fecha_fin'}, status=400)
+        
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+
+        facturas_cliente = Factura_Cliente.objects.filter(fecha__range=(fecha_inicio, fecha_fin))
+        facturas_proveedor = Factura_Proveedor.objects.filter(fecha__range=(fecha_inicio, fecha_fin))
+
+        serializer_cliente = FacturaClienteSerializer(facturas_cliente, many=True)
+        serializer_proveedor = FacturaProveedorSerializer(facturas_proveedor, many=True)
+
+        return Response({
+            'facturas_cliente': serializer_cliente.data,
+            'facturas_proveedor': serializer_proveedor.data
+        })
+    
+
+
+class TotalClientesProveedoresView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        total_clientes = Cliente.objects.count()
+        total_proveedores = Proveedor.objects.count()
+        return Response({
+            'total_clientes': total_clientes,
+            'total_proveedores': total_proveedores
+        })
+    
+
+
+class TotalFacturasPorUsuarioView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        rol = request.query_params.get('rol', 'contador')
+        usuarios = Usuario.objects.filter(rol=rol).annotate(
+            total_facturas_cliente=Count('facturas_cliente', distinct=True),
+            total_facturas_proveedor=Count('facturas_proveedor', distinct=True)
+        )
+        serializer = UsuarioFacturaSerializer(usuarios, many=True)
+        return Response(serializer.data)
+    
+
+

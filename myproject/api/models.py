@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager, User
 from django.utils import timezone
-
+from django.conf import settings
 
 class UsuarioManager(BaseUserManager):
     def create_user(self, email, nombre, password=None, **extra_fields):
@@ -36,7 +36,9 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     creado_en = models.DateTimeField(default=timezone.now)
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    avatar = models.URLField(null=True, blank=True)  # Cambiar a URLField
+    telefono = models.TextField(blank=True, null=True)  # Nuevo campo
+    direccion = models.TextField(blank=True, null=True)  # Nuevo campo
 
     objects = UsuarioManager()
 
@@ -47,25 +49,25 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         return self.nombre
 
 
+
 class Cliente(models.Model):
-    id = models.BigAutoField(primary_key=True)
     nombre = models.TextField(null=False)
     email = models.EmailField(unique=True, null=False)
     telefono = models.TextField(blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
     creado_en = models.DateTimeField(auto_now_add=True)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='clientes')  # Asegúrate de tener este campo
 
     def __str__(self):
         return self.nombre
 
-
 class Proveedor(models.Model):
-    id = models.BigAutoField(primary_key=True)
     nombre = models.TextField(null=False)
     email = models.EmailField(unique=True, null=False)
     telefono = models.TextField(blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
     creado_en = models.DateTimeField(auto_now_add=True)
+    creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='proveedores')  # Asegúrate de tener este campo
 
     def __str__(self):
         return self.nombre
@@ -79,8 +81,8 @@ class Factura_Cliente(models.Model):
     ]
 
     id = models.BigAutoField(primary_key=True)
-    cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, related_name='facturas')
-    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, related_name='facturas')
+    cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, related_name='facturas_cliente')
+    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, related_name='facturas_cliente')
     fecha = models.DateTimeField(auto_now_add=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, null=False)
@@ -88,9 +90,9 @@ class Factura_Cliente(models.Model):
     numero_factura = models.TextField(unique=True, null=False)
     fecha_vencimiento = models.DateTimeField(blank=True, null=True)
     accion = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.numero_factura} - {self.estado}"
-
 
 class Factura_Proveedor(models.Model):
     ESTADO_CHOICES = [
@@ -100,8 +102,8 @@ class Factura_Proveedor(models.Model):
     ]
 
     id = models.BigAutoField(primary_key=True)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True, related_name='facturas')
-    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, related_name='Facturas_Proveedor')
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True, related_name='facturas_proveedor')
+    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, related_name='facturas_proveedor')
     fecha = models.DateTimeField(auto_now_add=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2, null=False)
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, null=False)
@@ -160,3 +162,8 @@ class SimpleMessage(models.Model):
 
     def __str__(self):
         return f"{self.user.nombre}: {self.content[:20]}"
+    
+
+
+
+    

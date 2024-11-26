@@ -50,13 +50,12 @@ class FacturaProveedorSerializer(serializers.ModelSerializer):
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
-        fields = '__all__'
+        fields = ['id', 'nombre', 'email', 'telefono', 'direccion', 'creado_por']
 
 class ProveedorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Proveedor
-        fields = '__all__'
-
+        fields = ['id', 'nombre', 'email', 'telefono', 'direccion', 'creado_por']
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
@@ -92,8 +91,21 @@ from .models import SimpleMessage
 
 class SimpleMessageSerializer(serializers.ModelSerializer):
     user_nombre = serializers.CharField(source='user.nombre', read_only=True)
-    user_avatar = serializers.ImageField(source='user.avatar', read_only=True)
+    user_avatar = serializers.URLField(source='user.avatar', read_only=True)
 
     class Meta:
         model = SimpleMessage
         fields = ['id', 'user', 'user_nombre', 'user_avatar', 'content']
+
+
+
+from rest_framework import serializers
+from .models import Usuario, Factura_Cliente, Factura_Proveedor
+
+class UsuarioFacturaSerializer(serializers.ModelSerializer):
+    total_facturas_cliente = serializers.IntegerField()
+    total_facturas_proveedor = serializers.IntegerField()
+
+    class Meta:
+        model = Usuario
+        fields = ['id', 'nombre', 'email', 'rol', 'total_facturas_cliente', 'total_facturas_proveedor']

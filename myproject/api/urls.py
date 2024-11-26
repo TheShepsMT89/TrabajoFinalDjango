@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FacturaClienteViewSet, FacturaProveedorViewSet, ClienteViewSet, ProveedorViewSet, LoginView, LogoutView, VistaSoloAdmin, UsuarioLogueadoView, AuditLogListView, ReporteFacturaViewSet, SimpleMessageViewSet, TotalPorCobrarView, TotalPorPagarView, FacturasVencidasView, ProyeccionFlujoCajaView
+from .views import FacturaClienteViewSet, FacturaProveedorViewSet, ClienteViewSet, ProveedorViewSet, LoginView, LogoutView, VistaSoloAdmin, UsuarioLogueadoView, AuditLogListView, ReporteFacturaViewSet, SimpleMessageViewSet, TotalPorCobrarView, TotalPorPagarView, FacturasVencidasView, ProyeccionFlujoCajaView, NotificacionesFacturasView,TotalFacturasPorUsuarioView,TotalFacturasPorEstadoView, TotalMontoPorEstadoView, FacturasPorFechaView, TotalClientesProveedoresView
 
 # Crear el router
 router = DefaultRouter()
@@ -23,4 +23,11 @@ urlpatterns = [
     path('total-por-pagar/', TotalPorPagarView.as_view(), name='total_por_pagar'),  # Registrar la vista de total por pagar
     path('facturas-vencidas/', FacturasVencidasView.as_view(), name='facturas_vencidas'),  # Registrar la vista de facturas vencidas
     path('proyeccion-flujo-caja/', ProyeccionFlujoCajaView.as_view(), name='proyeccion_flujo_caja'),  # Registrar la vista de proyección de flujo de caja
+    
+    path('notificaciones-facturas/', NotificacionesFacturasView.as_view(), name='notificaciones_facturas'),
+     path('total-facturas-por-usuario/', TotalFacturasPorUsuarioView.as_view(), name='total_facturas_por_usuario'),
+     path('total-facturas-por-estado/', TotalFacturasPorEstadoView.as_view(), name='total_facturas_por_estado'),
+    path('total-monto-por-estado/', TotalMontoPorEstadoView.as_view(), name='total_monto_por_estado'),
+    path('facturas-por-fecha/', FacturasPorFechaView.as_view(), name='facturas_por_fecha'),
+    path('total-clientes-proveedores/', TotalClientesProveedoresView.as_view(), name='total_clientes_proveedores'),
 ]
