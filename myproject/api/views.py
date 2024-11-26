@@ -291,7 +291,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Factura_Cliente, Factura_Proveedor
-from django.db.models import Sum, Q
+from django.db.models import Sum
 from datetime import datetime
 
 class TotalPorCobrarView(APIView):
@@ -319,6 +319,13 @@ class FacturasVencidasView(APIView):
             'facturas_vencidas_clientes': facturas_vencidas_clientes.values(),
             'facturas_vencidas_proveedores': facturas_vencidas_proveedores.values()
         })
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import Factura_Cliente, Factura_Proveedor
+from django.db.models import Sum
+from datetime import datetime
 
 class ProyeccionFlujoCajaView(APIView):
     permission_classes = [IsAuthenticated]
