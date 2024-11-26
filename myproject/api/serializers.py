@@ -86,6 +86,7 @@ class ReporteFacturaSerializer(serializers.ModelSerializer):
 
 
 
+
 from rest_framework import serializers
 from .models import SimpleMessage
 
@@ -95,4 +96,4 @@ class SimpleMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SimpleMessage
-        fields = ['id', 'user', 'user_nombre', 'user_avatar', 'content', 'timestamp']
+        fields = ['id', 'user', 'user_nombre', 'user_avatar', 'content']

@@ -285,3 +285,60 @@ class SimpleMessageViewSet(viewsets.ModelViewSet):
     queryset = SimpleMessage.objects.all()
     serializer_class = SimpleMessageSerializer
     permission_classes = [IsAuthenticated]
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import Factura_Cliente, Factura_Proveedor
+from django.db.models import Sum, Q
+from datetime import datetime
+
+class TotalPorCobrarView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        total_por_cobrar = Factura_Cliente.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total']
+        return Response({'total_por_cobrar': total_por_cobrar})
+
+class TotalPorPagarView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        total_por_pagar = Factura_Proveedor.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total']
+        return Response({'total_por_pagar': total_por_pagar})
+
+class FacturasVencidasView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        hoy = datetime.now()
+        facturas_vencidas_clientes = Factura_Cliente.objects.filter(fecha_vencimiento__lt=hoy, estado='pendiente')
+        facturas_vencidas_proveedores = Factura_Proveedor.objects.filter(fecha_vencimiento__lt=hoy, estado='pendiente')
+        return Response({
+            'facturas_vencidas_clientes': facturas_vencidas_clientes.values(),
+            'facturas_vencidas_proveedores': facturas_vencidas_proveedores.values()
+        })
+
+class ProyeccionFlujoCajaView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        fecha_inicio = request.query_params.get('fecha_inicio')
+        fecha_fin = request.query_params.get('fecha_fin')
+        if not fecha_inicio or not fecha_fin:
+            return Response({'error': 'Debe proporcionar fecha_inicio y fecha_fin'}, status=400)
+        
+        fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+        fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+
+        ingresos = Factura_Cliente.objects.filter(fecha__range=(fecha_inicio, fecha_fin)).aggregate(total=Sum('monto'))['total']
+        egresos = Factura_Proveedor.objects.filter(fecha__range=(fecha_inicio, fecha_fin)).aggregate(total=Sum('monto'))['total']
+
+        flujo_caja = (ingresos or 0) - (egresos or 0)
+
+        return Response({
+            'ingresos': ingresos,
+            'egresos': egresos,
+            'flujo_caja': flujo_caja
+        })
