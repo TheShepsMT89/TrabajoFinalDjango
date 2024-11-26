@@ -36,6 +36,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     creado_en = models.DateTimeField(default=timezone.now)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
 
     objects = UsuarioManager()
 
@@ -146,3 +147,17 @@ class ReporteFactura(models.Model):
 
     def __str__(self):
         return f"Reporte de Factura {self.numero_factura}"
+    
+
+
+
+from django.db import models
+from django.conf import settings
+
+class SimpleMessage(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.nombre}: {self.content[:20]}"

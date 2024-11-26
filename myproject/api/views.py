@@ -273,3 +273,15 @@ class ReporteFacturaViewSet(viewsets.ModelViewSet):
     queryset = ReporteFactura.objects.all()
     serializer_class = ReporteFacturaSerializer
     permission_classes = [IsAuthenticated]
+
+
+
+from rest_framework import viewsets
+from .models import SimpleMessage
+from .serializers import SimpleMessageSerializer
+from rest_framework.permissions import IsAuthenticated
+
+class SimpleMessageViewSet(viewsets.ModelViewSet):
+    queryset = SimpleMessage.objects.all()
+    serializer_class = SimpleMessageSerializer
+    permission_classes = [IsAuthenticated]
