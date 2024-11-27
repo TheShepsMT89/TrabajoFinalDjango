@@ -467,23 +467,29 @@ class TotalPorCobrarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        total_por_cobrar = Factura_Cliente.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total']
+        total_por_cobrar_clientes = Factura_Cliente.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total'] or 0
+        total_por_cobrar_proveedores = Factura_Proveedor.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total'] or 0
+        total_por_cobrar = total_por_cobrar_clientes + total_por_cobrar_proveedores
         return Response({'total_por_cobrar': total_por_cobrar})
 
 class TotalPorPagarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        total_por_pagar = Factura_Proveedor.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total']
+        total_por_pagar_clientes = Factura_Cliente.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total'] or 0
+        total_por_pagar_proveedores = Factura_Proveedor.objects.filter(estado='pendiente').aggregate(total=Sum('monto'))['total'] or 0
+        total_por_pagar = total_por_pagar_clientes + total_por_pagar_proveedores
         return Response({'total_por_pagar': total_por_pagar})
-
+    
 class FacturasVencidasView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         hoy = timezone.now().date()
-        facturas_vencidas = Factura_Cliente.objects.filter(fecha_vencimiento__lt=hoy, estado='pendiente').count()
-        return Response({'facturas_vencidas': facturas_vencidas})
+        facturas_vencidas_clientes = Factura_Cliente.objects.filter(fecha_vencimiento__lt=hoy, estado='pendiente').count()
+        facturas_vencidas_proveedores = Factura_Proveedor.objects.filter(fecha_vencimiento__lt=hoy, estado='pendiente').count()
+        total_facturas_vencidas = facturas_vencidas_clientes + facturas_vencidas_proveedores
+        return Response({'facturas_vencidas': total_facturas_vencidas})
 
 class ProyeccionFlujoCajaView(APIView):
     permission_classes = [IsAuthenticated]
@@ -685,27 +691,47 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.core.files.storage import default_storage
 from .models import Factura_Cliente, Factura_Proveedor
+from django.utils.datastructures import MultiValueDictKeyError
+from django.utils import timezone
+from django.db import IntegrityError
 
 class ImportarFacturasCSVView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        tipo = request.query_params.get('tipo', 'cliente')
-        file = request.FILES['file']
+        try:
+            tipo = request.query_params.get('tipo', 'cliente')
+            file = request.FILES['file']
+        except MultiValueDictKeyError:
+            return Response({'error': 'No se ha proporcionado el archivo'}, status=400)
+
         file_path = default_storage.save(file.name, file)
         df = pd.read_csv(file_path)
 
         if tipo == 'cliente':
             for _, row in df.iterrows():
-                Factura_Cliente.objects.create(**row.to_dict())
+                row_dict = row.to_dict()
+                if 'fecha_vencimiento' in row_dict:
+                    fecha_vencimiento = pd.to_datetime(row_dict['fecha_vencimiento'])
+                    if fecha_vencimiento.tzinfo is None or fecha_vencimiento.tzinfo.utcoffset(fecha_vencimiento) is None:
+                        row_dict['fecha_vencimiento'] = timezone.make_aware(fecha_vencimiento)
+                try:
+                    Factura_Cliente.objects.create(**row_dict)
+                except IntegrityError:
+                    continue
         else:
             for _, row in df.iterrows():
-                Factura_Proveedor.objects.create(**row.to_dict())
+                row_dict = row.to_dict()
+                if 'fecha_vencimiento' in row_dict:
+                    fecha_vencimiento = pd.to_datetime(row_dict['fecha_vencimiento'])
+                    if fecha_vencimiento.tzinfo is None or fecha_vencimiento.tzinfo.utcoffset(fecha_vencimiento) is None:
+                        row_dict['fecha_vencimiento'] = timezone.make_aware(fecha_vencimiento)
+                try:
+                    Factura_Proveedor.objects.create(**row_dict)
+                except IntegrityError:
+                    continue
 
         return Response({'status': 'success'})
-
-
-
 
 import pandas as pd
 from rest_framework.views import APIView
@@ -868,3 +894,53 @@ class ActualizarEstadoFacturaView(APIView):
             return Response({'status': 'success', 'mensaje': 'Estado actualizado correctamente'})
         except ValueError as e:
             return Response({'status': 'error', 'mensaje': str(e)}, status=400)
+        
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+from .models import Factura_Cliente, Factura_Proveedor
+
+class FacturasPerdiendoPlataView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        facturas_cliente = Factura_Cliente.objects.filter(estado='pendiente').annotate(
+            mes=TruncMonth('fecha')
+        ).values('mes', 'estado').annotate(
+            total=Sum('monto')
+        ).order_by('mes')
+
+        facturas_proveedor = Factura_Proveedor.objects.filter(estado='pendiente').annotate(
+            mes=TruncMonth('fecha')
+        ).values('mes', 'estado').annotate(
+            total=Sum('monto')
+        ).order_by('mes')
+
+        return Response({
+            'facturas_cliente': list(facturas_cliente),
+            'facturas_proveedor': list(facturas_proveedor)
+        })
+
+class FacturasGanandoPlataView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        facturas_cliente = Factura_Cliente.objects.filter(estado='pagada').annotate(
+            mes=TruncMonth('fecha')
+        ).values('mes', 'estado').annotate(
+            total=Sum('monto')
+        ).order_by('mes')
+
+        facturas_proveedor = Factura_Proveedor.objects.filter(estado='pagada').annotate(
+            mes=TruncMonth('fecha')
+        ).values('mes', 'estado').annotate(
+            total=Sum('monto')
+        ).order_by('mes')
+
+        return Response({
+            'facturas_cliente': list(facturas_cliente),
+            'facturas_proveedor': list(facturas_proveedor)
+        })
