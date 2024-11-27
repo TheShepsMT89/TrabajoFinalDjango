@@ -7,70 +7,136 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Cliente',
+            name="Cliente",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('nombre', models.TextField()),
-                ('email', models.EmailField(max_length=254, unique=True)),
-                ('telefono', models.TextField(blank=True, null=True)),
-                ('direccion', models.TextField(blank=True, null=True)),
-                ('creado_en', models.DateTimeField(auto_now_add=True)),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("nombre", models.TextField()),
+                ("email", models.EmailField(max_length=254, unique=True)),
+                ("telefono", models.TextField(blank=True, null=True)),
+                ("direccion", models.TextField(blank=True, null=True)),
+                ("creado_en", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Proveedor',
+            name="Proveedor",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('nombre', models.TextField()),
-                ('email', models.EmailField(max_length=254, unique=True)),
-                ('telefono', models.TextField(blank=True, null=True)),
-                ('direccion', models.TextField(blank=True, null=True)),
-                ('creado_en', models.DateTimeField(auto_now_add=True)),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("nombre", models.TextField()),
+                ("email", models.EmailField(max_length=254, unique=True)),
+                ("telefono", models.TextField(blank=True, null=True)),
+                ("direccion", models.TextField(blank=True, null=True)),
+                ("creado_en", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Usuario',
+            name="Usuario",
             fields=[
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('nombre', models.TextField()),
-                ('email', models.EmailField(max_length=254, unique=True)),
-                ('password', models.CharField(max_length=128)),
-                ('rol', models.CharField(choices=[('admin', 'Admin'), ('contador', 'Contador'), ('gerente', 'Gerente')], max_length=10)),
-                ('is_active', models.BooleanField(default=True)),
-                ('is_staff', models.BooleanField(default=False)),
-                ('is_superuser', models.BooleanField(default=False)),
-                ('creado_en', models.DateTimeField(default=django.utils.timezone.now)),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("nombre", models.TextField()),
+                ("email", models.EmailField(max_length=254, unique=True)),
+                ("password", models.CharField(max_length=128)),
+                (
+                    "rol",
+                    models.CharField(
+                        choices=[
+                            ("admin", "Admin"),
+                            ("contador", "Contador"),
+                            ("gerente", "Gerente"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True)),
+                ("is_staff", models.BooleanField(default=False)),
+                ("is_superuser", models.BooleanField(default=False)),
+                ("creado_en", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.group",
+                        verbose_name="groups",
+                    ),
+                ),
+                (
+                    "user_permissions",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Specific permissions for this user.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.permission",
+                        verbose_name="user permissions",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Factura',
+            name="Factura",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('fecha', models.DateTimeField(auto_now_add=True)),
-                ('monto', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('estado', models.CharField(choices=[('pendiente', 'Pendiente'), ('pagada', 'Pagada'), ('cancelada', 'Cancelada')], max_length=10)),
-                ('descripcion', models.TextField(blank=True, null=True)),
-                ('numero_factura', models.TextField(unique=True)),
-                ('fecha_vencimiento', models.DateTimeField(blank=True, null=True)),
-                ('tipo', models.CharField(choices=[('emitida', 'Emitida'), ('recibida', 'Recibida')], max_length=10)),
-                ('entidad_id', models.BigIntegerField(blank=True, null=True)),
-                ('cliente', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas', to='api.cliente')),
-                ('usuario', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas', to=settings.AUTH_USER_MODEL)),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("fecha", models.DateTimeField(auto_now_add=True)),
+                ("monto", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "estado",
+                    models.CharField(
+                        choices=[
+                            ("pendiente", "Pendiente"),
+                            ("pagada", "Pagada"),
+                            ("cancelada", "Cancelada"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("descripcion", models.TextField(blank=True, null=True)),
+                ("numero_factura", models.TextField(unique=True)),
+                ("fecha_vencimiento", models.DateTimeField(blank=True, null=True)),
+                (
+                    "tipo",
+                    models.CharField(
+                        choices=[("emitida", "Emitida"), ("recibida", "Recibida")],
+                        max_length=10,
+                    ),
+                ),
+                ("entidad_id", models.BigIntegerField(blank=True, null=True)),
+                (
+                    "cliente",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="facturas",
+                        to="api.cliente",
+                    ),
+                ),
+                (
+                    "usuario",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="facturas",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

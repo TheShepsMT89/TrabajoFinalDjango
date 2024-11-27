@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0010_remove_simplemessage_timestamp'),
+        ("api", "0010_remove_simplemessage_timestamp"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='usuario',
-            name='direccion',
+            model_name="usuario",
+            name="direccion",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='usuario',
-            name='telefono',
+            model_name="usuario",
+            name="telefono",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='usuario',
-            name='avatar',
+            model_name="usuario",
+            name="avatar",
             field=models.URLField(blank=True, null=True),
         ),
     ]

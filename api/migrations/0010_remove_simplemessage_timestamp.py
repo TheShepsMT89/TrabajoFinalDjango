@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0009_rename_message_simplemessage'),
+        ("api", "0009_rename_message_simplemessage"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='simplemessage',
-            name='timestamp',
+            model_name="simplemessage",
+            name="timestamp",
         ),
     ]

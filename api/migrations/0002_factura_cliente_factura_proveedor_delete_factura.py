@@ -6,41 +6,92 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0001_initial'),
+        ("api", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Factura_cliente',
+            name="Factura_cliente",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('fecha', models.DateTimeField(auto_now_add=True)),
-                ('monto', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('estado', models.CharField(choices=[('pendiente', 'Pendiente'), ('pagada', 'Pagada'), ('cancelada', 'Cancelada')], max_length=10)),
-                ('descripcion', models.TextField(blank=True, null=True)),
-                ('numero_factura', models.TextField(unique=True)),
-                ('fecha_vencimiento', models.DateTimeField(blank=True, null=True)),
-                ('cliente', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas', to='api.cliente')),
-                ('usuario', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas', to=settings.AUTH_USER_MODEL)),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("fecha", models.DateTimeField(auto_now_add=True)),
+                ("monto", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "estado",
+                    models.CharField(
+                        choices=[
+                            ("pendiente", "Pendiente"),
+                            ("pagada", "Pagada"),
+                            ("cancelada", "Cancelada"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("descripcion", models.TextField(blank=True, null=True)),
+                ("numero_factura", models.TextField(unique=True)),
+                ("fecha_vencimiento", models.DateTimeField(blank=True, null=True)),
+                (
+                    "cliente",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="facturas",
+                        to="api.cliente",
+                    ),
+                ),
+                (
+                    "usuario",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="facturas",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Factura_proveedor',
+            name="Factura_proveedor",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('fecha', models.DateTimeField(auto_now_add=True)),
-                ('monto', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('estado', models.CharField(choices=[('pendiente', 'Pendiente'), ('pagada', 'Pagada'), ('cancelada', 'Cancelada')], max_length=10)),
-                ('descripcion', models.TextField(blank=True, null=True)),
-                ('numero_factura', models.TextField(unique=True)),
-                ('fecha_vencimiento', models.DateTimeField(blank=True, null=True)),
-                ('proveedor', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas', to='api.proveedor')),
-                ('usuario', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas_proveedor', to=settings.AUTH_USER_MODEL)),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("fecha", models.DateTimeField(auto_now_add=True)),
+                ("monto", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "estado",
+                    models.CharField(
+                        choices=[
+                            ("pendiente", "Pendiente"),
+                            ("pagada", "Pagada"),
+                            ("cancelada", "Cancelada"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("descripcion", models.TextField(blank=True, null=True)),
+                ("numero_factura", models.TextField(unique=True)),
+                ("fecha_vencimiento", models.DateTimeField(blank=True, null=True)),
+                (
+                    "proveedor",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="facturas",
+                        to="api.proveedor",
+                    ),
+                ),
+                (
+                    "usuario",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="facturas_proveedor",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.DeleteModel(
-            name='Factura',
+            name="Factura",
         ),
     ]

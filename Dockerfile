@@ -7,8 +7,12 @@ WORKDIR /app
 # Copia el archivo de requerimientos
 COPY requirements.txt .
 
+# Instala pipenv
+RUN pip install pipenv
+
 # Instala las dependencias
-RUN pip install -r requirements.txt
+
+RUN pipenv install -r requirements.txt
 
 # Copia el resto del código de la aplicación
 COPY . .

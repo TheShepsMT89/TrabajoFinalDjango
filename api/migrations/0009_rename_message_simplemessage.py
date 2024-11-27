@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0008_remove_message_room_name'),
+        ("api", "0008_remove_message_room_name"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Message',
-            new_name='SimpleMessage',
+            old_name="Message",
+            new_name="SimpleMessage",
         ),
     ]

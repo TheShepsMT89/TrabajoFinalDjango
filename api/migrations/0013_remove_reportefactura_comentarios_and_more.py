@@ -6,46 +6,65 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0012_cliente_creado_por_proveedor_creado_por_and_more'),
+        ("api", "0012_cliente_creado_por_proveedor_creado_por_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='reportefactura',
-            name='comentarios',
+            model_name="reportefactura",
+            name="comentarios",
         ),
         migrations.RemoveField(
-            model_name='reportefactura',
-            name='descripcion',
+            model_name="reportefactura",
+            name="descripcion",
         ),
         migrations.RemoveField(
-            model_name='reportefactura',
-            name='estado',
+            model_name="reportefactura",
+            name="estado",
         ),
         migrations.RemoveField(
-            model_name='reportefactura',
-            name='monto',
+            model_name="reportefactura",
+            name="monto",
         ),
         migrations.AlterField(
-            model_name='factura_cliente',
-            name='cliente',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas_cliente', to='api.cliente'),
+            model_name="factura_cliente",
+            name="cliente",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="facturas_cliente",
+                to="api.cliente",
+            ),
         ),
         migrations.AlterField(
-            model_name='factura_cliente',
-            name='usuario',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas_cliente', to=settings.AUTH_USER_MODEL),
+            model_name="factura_cliente",
+            name="usuario",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="facturas_cliente",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='factura_proveedor',
-            name='proveedor',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas_proveedor', to='api.proveedor'),
+            model_name="factura_proveedor",
+            name="proveedor",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="facturas_proveedor",
+                to="api.proveedor",
+            ),
         ),
         migrations.AlterField(
-            model_name='factura_proveedor',
-            name='usuario',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='facturas_proveedor', to=settings.AUTH_USER_MODEL),
+            model_name="factura_proveedor",
+            name="usuario",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="facturas_proveedor",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

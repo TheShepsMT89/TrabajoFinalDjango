@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0003_alter_factura_proveedor_usuario_auditlog'),
+        ("api", "0003_alter_factura_proveedor_usuario_auditlog"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='factura_cliente',
-            name='accion',
+            model_name="factura_cliente",
+            name="accion",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='factura_proveedor',
-            name='accion',
+            model_name="factura_proveedor",
+            name="accion",
             field=models.BooleanField(default=False),
         ),
     ]
