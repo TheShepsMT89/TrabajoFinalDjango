@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import FacturaClienteViewSet, FacturaProveedorViewSet, ClienteViewSet, ProveedorViewSet, LoginView, LogoutView, VistaSoloAdmin, UsuarioLogueadoView, AuditLogListView, ReporteFacturaViewSet, SimpleMessageViewSet, TotalPorCobrarView, TotalPorPagarView, FacturasVencidasView, ProyeccionFlujoCajaView, NotificacionesFacturasView,TotalFacturasPorUsuarioView,TotalFacturasPorEstadoView, TotalMontoPorEstadoView, FacturasPorFechaView, TotalClientesProveedoresView
+from .views import FacturaClienteViewSet, FacturaProveedorViewSet, ClienteViewSet, ProveedorViewSet, LoginView, LogoutView, VistaSoloAdmin, UsuarioLogueadoView, AuditLogListView, ReporteFacturaViewSet, SimpleMessageViewSet, TotalPorCobrarView, TotalPorPagarView, FacturasVencidasView, ProyeccionFlujoCajaView, NotificacionesFacturasView,TotalFacturasPorUsuarioView,TotalFacturasPorEstadoView, TotalMontoPorEstadoView, FacturasPorFechaView, TotalClientesProveedoresView,  ExportarDatosExcelView, ExportarDatosPDFView, ImportarFacturasCSVView, ImportarFacturasExcelView,ExportarFacturaExcelView, ExportarFacturaPDFView, ExportarTodasFacturasExcelView, ExportarTodasFacturasPDFView
 
 # Crear el router
 router = DefaultRouter()
@@ -30,4 +30,14 @@ urlpatterns = [
     path('total-monto-por-estado/', TotalMontoPorEstadoView.as_view(), name='total_monto_por_estado'),
     path('facturas-por-fecha/', FacturasPorFechaView.as_view(), name='facturas_por_fecha'),
     path('total-clientes-proveedores/', TotalClientesProveedoresView.as_view(), name='total_clientes_proveedores'),
+    path('exportar-datos-excel/', ExportarDatosExcelView.as_view(), name='exportar_datos_excel'),
+    path('exportar-datos-pdf/', ExportarDatosPDFView.as_view(), name='exportar_datos_pdf'),
+    path('importar-facturas-csv/', ImportarFacturasCSVView.as_view(), name='importar_facturas_csv'),
+    path('importar-facturas-excel/', ImportarFacturasExcelView.as_view(), name='importar_facturas_excel'),
+     path('exportar-factura-excel/', ExportarFacturaExcelView.as_view(), name='exportar_factura_excel'),
+    path('exportar-factura-pdf/', ExportarFacturaPDFView.as_view(), name='exportar_factura_pdf'),
+    path('exportar-todas-facturas-excel/', ExportarTodasFacturasExcelView.as_view(), name='exportar_todas_facturas_excel'),
+    path('exportar-todas-facturas-pdf/', ExportarTodasFacturasPDFView.as_view(), name='exportar_todas_facturas_pdf'),
+
+
 ]

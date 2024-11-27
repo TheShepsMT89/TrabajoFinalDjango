@@ -563,3 +563,234 @@ class TotalFacturasPorUsuarioView(APIView):
     
 
 
+
+import pandas as pd
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
+from .models import Factura_Cliente, Factura_Proveedor
+
+class ExportarDatosExcelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        tipo = request.query_params.get('tipo', 'cliente')
+        if tipo == 'cliente':
+            facturas = Factura_Cliente.objects.all().values()
+        else:
+            facturas = Factura_Proveedor.objects.all().values()
+
+        df = pd.DataFrame(facturas)
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=facturas_{tipo}.xlsx'
+        df.to_excel(response, index=False)
+        return response
+    
+
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
+from .models import Factura_Cliente, Factura_Proveedor
+
+class ExportarDatosPDFView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        tipo = request.query_params.get('tipo', 'cliente')
+        if tipo == 'cliente':
+            facturas = Factura_Cliente.objects.all()
+        else:
+            facturas = Factura_Proveedor.objects.all()
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename=facturas_{tipo}.pdf'
+        p = canvas.Canvas(response, pagesize=letter)
+        width, height = letter
+
+        y = height - 40
+        for factura in facturas:
+            p.drawString(30, y, str(factura))
+            y -= 20
+            if y < 40:
+                p.showPage()
+                y = height - 40
+
+        p.save()
+        return response
+    
+
+
+
+import pandas as pd
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.core.files.storage import default_storage
+from .models import Factura_Cliente, Factura_Proveedor
+
+class ImportarFacturasCSVView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        tipo = request.query_params.get('tipo', 'cliente')
+        file = request.FILES['file']
+        file_path = default_storage.save(file.name, file)
+        df = pd.read_csv(file_path)
+
+        if tipo == 'cliente':
+            for _, row in df.iterrows():
+                Factura_Cliente.objects.create(**row.to_dict())
+        else:
+            for _, row in df.iterrows():
+                Factura_Proveedor.objects.create(**row.to_dict())
+
+        return Response({'status': 'success'})
+
+
+
+
+import pandas as pd
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.core.files.storage import default_storage
+from .models import Factura_Cliente, Factura_Proveedor
+
+class ImportarFacturasExcelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        tipo = request.query_params.get('tipo', 'cliente')
+        file = request.FILES['file']
+        file_path = default_storage.save(file.name, file)
+        df = pd.read_excel(file_path)
+
+        if tipo == 'cliente':
+            for _, row in df.iterrows():
+                Factura_Cliente.objects.create(**row.to_dict())
+        else:
+            for _, row in df.iterrows():
+                Factura_Proveedor.objects.create(**row.to_dict())
+
+        return Response({'status': 'success'})
+    
+
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
+from .models import Factura_Cliente, Factura_Proveedor
+
+class ExportarTodasFacturasPDFView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        tipo = request.query_params.get('tipo', 'cliente')
+        if tipo == 'cliente':
+            facturas = Factura_Cliente.objects.all()
+        else:
+            facturas = Factura_Proveedor.objects.all()
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename=todas_facturas_{tipo}.pdf'
+        p = canvas.Canvas(response, pagesize=letter)
+        width, height = letter
+
+        y = height - 40
+        for factura in facturas:
+            p.drawString(30, y, str(factura))
+            y -= 20
+            if y < 40:
+                p.showPage()
+                y = height - 40
+
+        p.save()
+        return response
+
+
+import pandas as pd
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
+from .models import Factura_Cliente, Factura_Proveedor
+
+class ExportarTodasFacturasExcelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        tipo = request.query_params.get('tipo', 'cliente')
+        if tipo == 'cliente':
+            facturas = Factura_Cliente.objects.all().values()
+        else:
+            facturas = Factura_Proveedor.objects.all().values()
+
+        df = pd.DataFrame(facturas)
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=todas_facturas_{tipo}.xlsx'
+        df.to_excel(response, index=False)
+        return response
+    
+
+
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
+from .models import Factura_Cliente, Factura_Proveedor
+
+class ExportarFacturaPDFView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        tipo = request.query_params.get('tipo', 'cliente')
+        factura_id = request.query_params.get('id')
+        if tipo == 'cliente':
+            factura = Factura_Cliente.objects.get(id=factura_id)
+        else:
+            factura = Factura_Proveedor.objects.get(id=factura_id)
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename=factura_{tipo}_{factura_id}.pdf'
+        p = canvas.Canvas(response, pagesize=letter)
+        width, height = letter
+
+        y = height - 40
+        p.drawString(30, y, str(factura))
+        p.save()
+        return response
+    
+
+
+import pandas as pd
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.http import HttpResponse
+from .models import Factura_Cliente, Factura_Proveedor
+
+class ExportarFacturaExcelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        tipo = request.query_params.get('tipo', 'cliente')
+        factura_id = request.query_params.get('id')
+        if tipo == 'cliente':
+            factura = Factura_Cliente.objects.filter(id=factura_id).values()
+        else:
+            factura = Factura_Proveedor.objects.filter(id=factura_id).values()
+
+        df = pd.DataFrame(factura)
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=factura_{tipo}_{factura_id}.xlsx'
+        df.to_excel(response, index=False)
+        return response
+

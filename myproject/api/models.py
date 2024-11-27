@@ -138,15 +138,12 @@ class ReporteFactura(models.Model):
     proveedor = models.CharField(max_length=255, null=True, blank=True)
     fecha = models.DateTimeField()
     fecha_vencimiento = models.DateTimeField()
-    monto = models.DecimalField(max_digits=10, decimal_places=2)
-    estado = models.CharField(max_length=50)
-    descripcion = models.TextField(blank=True, null=True)
+
     accion = models.BooleanField(default=False)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     timestamp_accion = models.DateTimeField(auto_now=True)
     motivo_accion = models.TextField(blank=True, null=True)
-    comentarios = models.TextField(blank=True, null=True)
-
+  
     def __str__(self):
         return f"Reporte de Factura {self.numero_factura}"
     
