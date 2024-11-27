@@ -970,3 +970,46 @@ def register_user(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .models import Factura_Cliente, Factura_Proveedor
+from .serializers import FacturaClienteSerializer, FacturaProveedorSerializer
+
+@api_view(['PUT', 'PATCH'])
+def editar_factura_cliente(request, pk):
+    try:
+        factura = Factura_Cliente.objects.get(pk=pk)
+    except Factura_Cliente.DoesNotExist:
+        return Response({'error': 'Factura no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PUT':
+        serializer = FacturaClienteSerializer(factura, data=request.data)
+    elif request.method == 'PATCH':
+        serializer = FacturaClienteSerializer(factura, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT', 'PATCH'])
+def editar_factura_proveedor(request, pk):
+    try:
+        factura = Factura_Proveedor.objects.get(pk=pk)
+    except Factura_Proveedor.DoesNotExist:
+        return Response({'error': 'Factura no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PUT':
+        serializer = FacturaProveedorSerializer(factura, data=request.data)
+    elif request.method == 'PATCH':
+        serializer = FacturaProveedorSerializer(factura, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

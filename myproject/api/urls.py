@@ -12,7 +12,7 @@ from .views import (
     TotalFacturasPorUsuarioView, TotalFacturasPorEstadoView, TotalMontoPorEstadoView,
     FacturasPorFechaView, TotalClientesProveedoresView, UsuarioAdminViewSet, 
     ClienteAdminViewSet, ProveedorAdminViewSet, FacturaClienteAdminViewSet, ActualizarEstadoFacturaView,
-    FacturaProveedorAdminViewSet,FacturasPerdiendoPlataView, FacturasGanandoPlataView
+    FacturaProveedorAdminViewSet,FacturasPerdiendoPlataView, FacturasGanandoPlataView,editar_factura_cliente, editar_factura_proveedor
 )
 
 # Crear el router
@@ -60,7 +60,8 @@ urlpatterns = [
     path('exportar-todas-facturas-pdf/', ExportarTodasFacturasPDFView.as_view(), name='exportar_todas_facturas_pdf'),
      path('facturas-perdiendo-plata/', FacturasPerdiendoPlataView.as_view(), name='facturas_perdiendo_plata'),
     path('facturas-ganando-plata/', FacturasGanandoPlataView.as_view(), name='facturas_ganando_plata'),
-
+    path('facturas-clientes/<int:pk>/editar/', editar_factura_cliente, name='editar_factura_cliente'),
+    path('facturas-proveedores/<int:pk>/editar/', editar_factura_proveedor, name='editar_factura_proveedor'),
 
 
 

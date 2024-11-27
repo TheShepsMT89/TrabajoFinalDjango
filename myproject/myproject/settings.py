@@ -148,3 +148,17 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
+
+
+ALLOWED_HOSTS = ['TrabajoFinalDjango.onrender.com']
+
+
+import dj_database_url
+
+DATABASES = {
+    'default': dj_database_url.config(default='postgresql://root:klkvzce71O3kXJZMhSdLmMnvTjC9tMoE@dpg-ct3gqrl2ng1s739sjbb0-a.oregon-postgres.render.com:5432/db_django_b09p')
+}
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEBUG = False
