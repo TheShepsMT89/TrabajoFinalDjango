@@ -11,7 +11,7 @@ from .views import (
     FacturasVencidasView, ProyeccionFlujoCajaView, NotificacionesFacturasView,
     TotalFacturasPorUsuarioView, TotalFacturasPorEstadoView, TotalMontoPorEstadoView,
     FacturasPorFechaView, TotalClientesProveedoresView, UsuarioAdminViewSet, 
-    ClienteAdminViewSet, ProveedorAdminViewSet, FacturaClienteAdminViewSet, 
+    ClienteAdminViewSet, ProveedorAdminViewSet, FacturaClienteAdminViewSet, ActualizarEstadoFacturaView,
     FacturaProveedorAdminViewSet
 )
 
@@ -23,11 +23,11 @@ router.register('clientes', ClienteViewSet, basename='clientes')
 router.register('proveedores', ProveedorViewSet, basename='proveedores')
 router.register('reportes-facturas', ReporteFacturaViewSet, basename='reportes-facturas')
 router.register('simple-messages', SimpleMessageViewSet, basename='simple-messages')
-router.register(r'admin/usuarios', UsuarioAdminViewSet, basename='admin-usuarios')
-router.register(r'admin/clientes', ClienteAdminViewSet, basename='admin-clientes')
-router.register(r'admin/proveedores', ProveedorAdminViewSet, basename='admin-proveedores')
-router.register(r'admin/facturas-clientes', FacturaClienteAdminViewSet, basename='admin-facturas-clientes')
-router.register(r'admin/facturas-proveedores', FacturaProveedorAdminViewSet, basename='admin-facturas-proveedores')
+router.register('admin/usuarios', UsuarioAdminViewSet, basename='admin-usuarios')
+router.register('admin/clientes', ClienteAdminViewSet, basename='admin-clientes')
+router.register('admin/proveedores', ProveedorAdminViewSet, basename='admin-proveedores')
+router.register('admin/facturas-clientes', FacturaClienteAdminViewSet, basename='admin-facturas-clientes')
+router.register('admin/facturas-proveedores', FacturaProveedorAdminViewSet, basename='admin-facturas-proveedores')
 
 # Definir las rutas
 urlpatterns = [
@@ -48,7 +48,7 @@ urlpatterns = [
     path('total-monto-por-estado/', TotalMontoPorEstadoView.as_view(), name='total_monto_por_estado'),
     path('facturas-por-fecha/', FacturasPorFechaView.as_view(), name='facturas_por_fecha'),
     path('total-clientes-proveedores/', TotalClientesProveedoresView.as_view(), name='total_clientes_proveedores'),
-
+     path('actualizar-estado-factura/', ActualizarEstadoFacturaView.as_view(), name='actualizar_estado_factura'),
     path('exportar-datos-excel/', ExportarDatosExcelView.as_view(), name='exportar_datos_excel'),
     path('exportar-datos-pdf/', ExportarDatosPDFView.as_view(), name='exportar_datos_pdf'),
     path('importar-facturas-csv/', ImportarFacturasCSVView.as_view(), name='importar_facturas_csv'),

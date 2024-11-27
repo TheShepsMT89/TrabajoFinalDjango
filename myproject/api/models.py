@@ -114,6 +114,12 @@ class Factura_Proveedor(models.Model):
 
     def __str__(self):
         return f"{self.numero_factura} - {self.estado}"
+    def actualizar_estado(self, nuevo_estado):
+        if nuevo_estado in dict(self.ESTADO_CHOICES):
+            self.estado = nuevo_estado
+            self.save()
+        else:
+            raise ValueError("Estado no válido")
 
 from django.conf import settings 
 class AuditLog(models.Model):
@@ -127,6 +133,12 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.action} - {self.timestamp}"
+    def actualizar_estado(self, nuevo_estado):
+        if nuevo_estado in dict(self.ESTADO_CHOICES):
+            self.estado = nuevo_estado
+            self.save()
+        else:
+            raise ValueError("Estado no válido")
 
 
 from django.conf import settings
