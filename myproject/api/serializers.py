@@ -61,6 +61,14 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = '__all__'
 
+class UsuarioDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['id', 'nombre', 'email', 'password', 'rol', 'telefono', 'direccion']  # Campos requeridos
+        extra_kwargs = {
+            'password': {'write_only': True}  # La contraseña solo puede escribirse
+        }  
+
 class AuditLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuditLog
@@ -109,3 +117,34 @@ class UsuarioFacturaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = ['id', 'nombre', 'email', 'rol', 'total_facturas_cliente', 'total_facturas_proveedor']
+
+
+
+class UsuarioListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = ['id', 'nombre', 'email']  # Campos visibles en el listado
+
+
+
+
+from rest_framework import serializers
+from .models import Usuario
+
+class UsuarioSerializer(serializers.ModelSerializer):
+    rol= serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'password', 'email', 'rol']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        rol = validated_data.pop('rol')
+        user = Usuario.objects.create_user(
+            email=validated_data['email'],
+            nombre=validated_data['nombre'],
+            password=validated_data['password'],
+            rol=rol
+        )
+        return user

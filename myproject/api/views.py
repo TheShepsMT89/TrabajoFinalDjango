@@ -207,23 +207,27 @@ class FacturaProveedorAdminViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
-
+from .serializers import UsuarioListSerializer, UsuarioDetailSerializer
 class UsuarioAdminViewSet(ModelViewSet):
     queryset = Usuario.objects.all()
-    serializer_class = UsuarioSerializer
     permission_classes = [IsAuthenticated, EsAdmin]
+
+    # Selección dinámica del serializador
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return UsuarioListSerializer
+        return UsuarioDetailSerializer
 
     # Método para cambiar el rol desde React
     @action(detail=True, methods=['patch'])
     def cambiar_rol(self, request, pk=None):
         usuario = self.get_object()
         nuevo_rol = request.data.get('rol')
-        if nuevo_rol in ['EsAdmin', 'EsContador', 'UsuarioRegular']:  # Valida los roles disponibles
+        if nuevo_rol in ['admin', 'contador', 'gerente']:  # Valida los roles disponibles
             usuario.rol = nuevo_rol
             usuario.save()
             return Response({"mensaje": f"Rol cambiado a {nuevo_rol}"})
         return Response({"error": "Rol inválido"}, status=400)
-
 
 
 class ClienteViewSet(ModelViewSet):
@@ -944,3 +948,25 @@ class FacturasGanandoPlataView(APIView):
             'facturas_cliente': list(facturas_cliente),
             'facturas_proveedor': list(facturas_proveedor)
         })
+    
+
+
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from .serializers import UsuarioSerializer
+
+SPECIAL_PASSWORD = '345612'
+
+@api_view(['POST'])
+def register_user(request):
+    special_password = request.data.get('special_password')
+    if special_password != SPECIAL_PASSWORD:
+        return Response({'error': 'Contraseña especial incorrecta'}, status=status.HTTP_403_FORBIDDEN)
+
+    serializer = UsuarioSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import FacturaClienteViewSet, FacturaProveedorViewSet, ClienteViewSet, ProveedorViewSet, LoginView, LogoutView, VistaSoloAdmin, UsuarioLogueadoView, AuditLogListView, ReporteFacturaViewSet, SimpleMessageViewSet, TotalPorCobrarView, TotalPorPagarView, FacturasVencidasView, ProyeccionFlujoCajaView, NotificacionesFacturasView,TotalFacturasPorUsuarioView,TotalFacturasPorEstadoView, TotalMontoPorEstadoView, FacturasPorFechaView, TotalClientesProveedoresView,  ExportarDatosExcelView, ExportarDatosPDFView, ImportarFacturasCSVView, ImportarFacturasExcelView,ExportarFacturaExcelView, ExportarFacturaPDFView, ExportarTodasFacturasExcelView, ExportarTodasFacturasPDFView
-
+from .views import register_user
 
 from .views import (
     FacturaClienteViewSet, FacturaProveedorViewSet, ClienteViewSet, ProveedorViewSet,
@@ -32,6 +32,7 @@ router.register('admin/facturas-proveedores', FacturaProveedorAdminViewSet, base
 # Definir las rutas
 urlpatterns = [
     path('', include(router.urls)),
+    path('register/', register_user, name='register_user'),
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('admin-only/', VistaSoloAdmin.as_view(), name='admin_only'),
