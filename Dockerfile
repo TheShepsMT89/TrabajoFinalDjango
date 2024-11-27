@@ -11,7 +11,7 @@ COPY requirements.txt .
 RUN pip install pipenv
 
 # Instala las dependencias
-
+RUN pip install --upgrade pip setuptools wheel
 RUN pipenv install -r requirements.txt
 
 # Copia el resto del código de la aplicación
