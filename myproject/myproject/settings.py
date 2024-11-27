@@ -1,5 +1,7 @@
 from pathlib import Path
 from datetime import timedelta
+import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,9 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-6lfg6i6v2v@@cmm!^$h#o4u49cu)a@-8zi+=_42)s749%%e$5p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['TrabajoFinalDjango.onrender.com']
 
 # Application definition
 
@@ -75,10 +77,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(default='postgresql://root:klkvzce71O3kXJZMhSdLmMnvTjC9tMoE@dpg-ct3gqrl2ng1s739sjbb0-a.oregon-postgres.render.com:5432/db_django_b09p')
 }
 
 AUTH_USER_MODEL = 'api.Usuario'
@@ -116,6 +115,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -148,17 +150,3 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
-
-
-ALLOWED_HOSTS = ['TrabajoFinalDjango.onrender.com']
-
-
-import dj_database_url
-
-DATABASES = {
-    'default': dj_database_url.config(default='postgresql://root:klkvzce71O3kXJZMhSdLmMnvTjC9tMoE@dpg-ct3gqrl2ng1s739sjbb0-a.oregon-postgres.render.com:5432/db_django_b09p')
-}
-import os
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-DEBUG = False
