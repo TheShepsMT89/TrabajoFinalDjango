@@ -848,3 +848,23 @@ class ExportarFacturaExcelView(APIView):
         df.to_excel(response, index=False)
         return response
 
+
+
+class ActualizarEstadoFacturaView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        tipo = request.data.get('tipo', 'cliente')
+        factura_id = request.data.get('id')
+        nuevo_estado = request.data.get('estado')
+
+        if tipo == 'cliente':
+            factura = Factura_Cliente.objects.get(id=factura_id)
+        else:
+            factura = Factura_Proveedor.objects.get(id=factura_id)
+
+        try:
+            factura.actualizar_estado(nuevo_estado)
+            return Response({'status': 'success', 'mensaje': 'Estado actualizado correctamente'})
+        except ValueError as e:
+            return Response({'status': 'error', 'mensaje': str(e)}, status=400)
